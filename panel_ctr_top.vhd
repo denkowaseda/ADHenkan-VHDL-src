@@ -13,6 +13,11 @@ entity panel_ctr_top is
 		ph2a : in std_logic;
 		ph2b : in std_logic;
 		ad_status : in std_logic;
+		fs : std_logic;
+		bclk : std_logic;
+		csn : std_logic;
+		data : std_logic;
+		sclk : std_logic;
 		ad : in std_logic_vector(11 downto 0);
 		fclka : out std_logic;
 		conv : out std_logic;
@@ -28,9 +33,11 @@ entity panel_ctr_top is
 		seg_f : out std_logic;
 		seg_g : out std_logic;
 		seg_dt : out std_logic;
+		dx : out std_logic;
+		led_pcm : out std_logic;
 		led : out std_logic_vector(7 downto 0);
 		rsl_bit : out std_logic_vector(2 downto 0);
-		test : in std_logic_vector(7 downto 0));
+		test : in std_logic_vector(3 downto 0));
 end panel_ctr_top;
 
 architecture rtl of panel_ctr_top is
@@ -87,7 +94,8 @@ component dtprc
 		addt : in std_logic_vector(11 downto 0);
 		conv : out std_logic;
 		da_clock : out std_logic;
-		dadt : out std_logic_vector(11 downto 0));
+		dadt : out std_logic_vector(11 downto 0);
+		leddt : out std_logic_vector(11 downto 0));
 end component;
 
 component chat
@@ -120,7 +128,7 @@ signal res12,res8,res4,res2 : std_logic;
 signal keyi,swo : std_logic_vector(1 downto 0);
 signal comsel : std_logic_vector(5 downto 0);
 signal q,fscntq,fcdata,fsdata,segled : std_logic_vector(7 downto 0);
-signal dadt : std_logic_vector(11 downto 0);
+signal dadt,leddt : std_logic_vector(11 downto 0);
 
 begin
 
@@ -134,7 +142,7 @@ begin
 	U4 : clkgen port map(reset=>reset,clk=>clk,scale=>scale,scclk=>scclk);
 	
 	U5 : dtprc port map(ad_status =>ad_status,fsclk=>fsclk,res12=>res12,res8=>res8,res4=>res4,
-			res2=>res2,addt=>ad,conv=>conv,da_clock=>da_clock,dadt=>dadt);
+			res2=>res2,addt=>ad,conv=>conv,da_clock=>da_clock,dadt=>dadt,leddt=>leddt);
 			
 	U6 : chat port map(reset=>reset,clk=>clk,scale=>scale,swi=>swi,swo=>swo);
 	
@@ -159,17 +167,19 @@ begin
 	seg_b <= segled(6);
 	seg_a <= segled(7);
 	
-	led(7) <= not dadt(10);
-	led(6) <= not dadt(9);
-	led(5) <= not dadt(8);
-	led(4) <= not dadt(7);
-	led(3) <= not dadt(6);
-	led(2) <= not dadt(5);
-	led(1) <= not dadt(4);
-	led(0) <= not dadt(3);
-	rsl_bit(2) <= not dadt(2) when test(2 downto 0) /= "111" else not res8;
-	rsl_bit(1) <= not dadt(1) when test(2 downto 0) /= "111" else not res4;
-	rsl_bit(0) <= not dadt(0) when test(2 downto 0) /= "111" else not res2;
+	led(7) <= not leddt(10);
+	led(6) <= not leddt(9);
+	led(5) <= not leddt(8);
+	led(4) <= not leddt(7);
+	led(3) <= not leddt(6);
+	led(2) <= not leddt(5);
+	led(1) <= not leddt(4);
+	led(0) <= not leddt(3);
+	rsl_bit(2) <= not leddt(2) when test(2 downto 0) /= "111" else not res8;
+	rsl_bit(1) <= not leddt(1) when test(2 downto 0) /= "111" else not res4;
+	rsl_bit(0) <= not leddt(0) when test(2 downto 0) /= "111" else not res2;
+	
+	led_pcm <= '1';
 
 --	dd <= dadt;
 	

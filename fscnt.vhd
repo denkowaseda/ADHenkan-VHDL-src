@@ -57,6 +57,7 @@ process(RESET_N,CLK) begin
 		s0 <= (A & B); s1 <= s0;
 		if(up = '1') then
 			if(q_fb = "0110111000") then
+--			if(q_fb = "1100100000") then
 				q_fb <= q_fb;
 --			elsif q_fb > "0110010000" then 
 --				q_fb <= q_fb + 10;
