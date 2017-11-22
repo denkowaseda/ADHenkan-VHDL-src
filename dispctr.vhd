@@ -10,8 +10,8 @@ PORT(
 	SCCLK : IN std_logic;
 	ATTDWN : IN std_logic;
 	ATTUP : IN std_logic;
-	FSDATA : IN std_logic_vector(7 downto 0);
-	FCDATA : IN std_logic_vector(7 downto 0);
+	FSDATA : IN std_logic_vector(8 downto 0);
+	FCDATA : IN std_logic_vector(8 downto 0);
 	COMSEL : OUT std_logic_vector(5 downto 0);
 	LED : OUT std_logic_vector(7 downto 0));
 END dispctr;
@@ -37,8 +37,8 @@ signal fs1stdig,fs2nddig,fs3rddig,fc1stdig,fc2nddig,fc3rddig : std_logic_vector(
 signal bcdo : std_logic_vector(3 downto 0);
 signal selreg,muxsel : std_logic_vector(5 downto 0);
 signal dout : std_logic_vector(7 downto 0);
-signal shift_fsdata,shift_fcdata : std_logic_vector(7 downto 0);
-signal count : std_logic_vector(2 downto 0);
+signal shift_fsdata,shift_fcdata : std_logic_vector(8 downto 0);
+signal count : std_logic_vector(3 downto 0);
 signal shift_rst : std_logic_vector(1 downto 0);
 signal done_node : std_logic;
 signal modout0, modout1,modout2,modout3 : std_logic;
@@ -52,7 +52,7 @@ BcdDigit0 : BcdDigit port map(
 	Clk => clk,
 	Init => init,
 	DoneIn => done_node,
-	ModIn => shift_fsdata(7),
+	ModIn => shift_fsdata(8),
 	ModOut => modout0,
 	Q => fs1stdig
 	);
@@ -76,7 +76,7 @@ BcdDigit3 : BcdDigit port map(
 	Clk => clk,
 	Init => init,
 	DoneIn => done_node,
-	ModIn => shift_fcdata(7),
+	ModIn => shift_fcdata(8),
 	ModOut => modout2,
 	Q => fc1stdig
 	);
@@ -106,19 +106,19 @@ seg1 : seven_segdec port map(DIN => bcdo,DOUT => dout);
 -- Shift the binary data
 process(reset,clk) begin
 	if reset = '0' then
-		shift_fsdata	 <= "00001010";
-		shift_fcdata <= "00100010";
+		shift_fsdata	 <= "000001010";
+		shift_fcdata <= "000100010";
 	elsif clk'event and clk='1' then
 		if init='1' then
 			shift_fsdata <= (others => '0');
 			shift_fcdata <= (others => '0');
 		else
 			if load='1' then
-				shift_fsdata <= FSDATA(7 downto 0);
-				shift_fcdata <= FCDATA(7 downto 0);
+				shift_fsdata <= FSDATA(8 downto 0);
+				shift_fcdata <= FCDATA(8 downto 0);
 			else
-				shift_fsdata <= shift_fsdata(6 downto 0) & '0';
-				shift_fcdata <= shift_fcdata(6 downto 0) & '0';
+				shift_fsdata <= shift_fsdata(7 downto 0) & '0';
+				shift_fcdata <= shift_fcdata(7 downto 0) & '0';
 			end if;
 		end if;
 	end if;
@@ -144,7 +144,7 @@ process(clk) begin
 			if load='1' then
 				count <= (others => '0');
 				done_node <= '0';
-			elsif count = "111" then
+			elsif count = "1000" then
 				count <= count;
 				done_node <= '1';
 			else

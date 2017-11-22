@@ -46,20 +46,24 @@ component fsfcgen
 	port (
 		reset : in std_logic;
 		clk : in std_logic;
-		fscntq : in std_logic_vector(7 downto 0);
+		fscntq : in std_logic_vector(6 downto 0);
+		fccntq : in std_logic_vector(3 downto 0);
 		fsclk : out std_logic;
 		fcclk : out std_logic);
 end component;
 
-component fscnt
-	port(
+component fsfccnt
+port(
 		CLK : IN std_logic;
-		RESET_N : IN std_logic;
-		A : IN std_logic;
-		B : IN std_logic;
-		CNTUP : OUT std_logic;
-		CNTDWN : OUT std_logic;
-		Q : OUT std_logic_vector(7 downto 0));
+		RESET : IN std_logic;
+		PHA_FS : IN std_logic;
+		PHB_FS : IN std_logic;
+		PHA_FC : IN std_logic;
+		PHB_FC : IN std_logic;
+		ATTUP : OUT std_logic;
+		ATTDWN : OUT std_logic;
+		FSCNTQ : OUT std_logic_vector(6 downto 0);
+		FCCNTQ : OUT std_logic_vector(3 downto 0));
 end component;
 
 component dispctr
@@ -69,8 +73,8 @@ component dispctr
 		SCCLK : IN std_logic;
 		ATTDWN : IN std_logic;
 		ATTUP : IN std_logic;
-		FSDATA : IN std_logic_vector(7 downto 0);
-		FCDATA : IN std_logic_vector(7 downto 0);
+		FSDATA : IN std_logic_vector(8 downto 0);
+		FCDATA : IN std_logic_vector(8 downto 0);
 		COMSEL : OUT std_logic_vector(5 downto 0);
 		LED : OUT std_logic_vector(7 downto 0));
 end component;
@@ -119,24 +123,37 @@ component sequencer
 		res12 : out std_logic);
 end component;
 
+component conv_disp_data
+	port(
+		fscntq : in std_logic_vector(6 downto 0);
+		fccntq : in std_logic_vector(3 downto 0);
+		fsdata : out std_logic_vector(8 downto 0);
+		fcdata : out std_logic_vector(8 downto 0));
+end component;
 
 signal sec : std_logic;
 signal cnt_25 : integer:=33554431;
 --signal cnt_25 : integer:=31;
-signal fsclk,fcclk,cntup,cntdwn,scclk,scale,reset : std_logic;
+signal fsclk,fcclk,scclk,scale,reset : std_logic;
 signal res12,res8,res4,res2 : std_logic;
+signal pha_fs,phb_fs,pha_fc,phb_fc,attup,attdwn : std_logic;
 signal keyi,swo : std_logic_vector(1 downto 0);
 signal comsel : std_logic_vector(5 downto 0);
-signal q,fscntq,fcdata,fsdata,segled : std_logic_vector(7 downto 0);
+signal segled : std_logic_vector(7 downto 0);
+signal fscntq : std_logic_vector(6 downto 0);
+signal fccntq : std_logic_vector(3 downto 0);
+signal fsdata,fcdata : std_logic_vector(8 downto 0);
 signal dadt,leddt : std_logic_vector(11 downto 0);
 
 begin
 
-	U1 : fsfcgen port map(reset=>reset,clk=>clk,fscntq=>fscntq,fsclk=>fsclk,fcclk=>fcclk);
+	U1 : fsfcgen port map(reset=>reset,clk=>clk,fscntq=>fscntq,fccntq=>fccntq,
+			fsclk=>fsclk,fcclk=>fcclk);
 	
-	U2 : fscnt port map(CLK=>clk,RESET_N=>reset,A=>ph1a,B=>ph1b,CNTUP=>cntup,CNTDWN=>cntdwn,Q=>q);
+	U2 : fsfccnt port map(CLK=>clk,RESET=>reset,PHA_FS=>ph1a,PHB_FS=>ph1b,PHA_FC=>ph2a,
+			PHB_FC=>ph2b,ATTUP=>attup,ATTDWN=>attdwn,FSCNTQ=>fscntq,FCCNTQ=>fccntq);
 	
-	U3 : dispctr port map(RESET=>reset,CLK=>clk,SCCLK=>scclk,ATTDWN=>cntdwn,ATTUP=>cntup,
+	U3 : dispctr port map(RESET=>reset,CLK=>clk,SCCLK=>scclk,ATTDWN=>attdwn,ATTUP=>attup,
 			FSDATA=>fsdata,FCDATA=>fcdata,COMSEL=>comsel,LED=>segled);
 			
 	U4 : clkgen port map(reset=>reset,clk=>clk,scale=>scale,scclk=>scclk);
@@ -149,10 +166,8 @@ begin
 	U7 : sequencer port map(reset=>reset,clk=>clk,keyi=>swo,scale=>scale,res2=>res2,res4=>res4,
 			res8=>res8,res12=>res12);
 	
+	U8 : conv_disp_data port map(fscntq=>fscntq,fccntq=>fccntq,fsdata=>fsdata,fcdata=>fcdata);
 	
-	fscntq <= q;
-	fsdata <= fscntq;
-	fcdata <= "00100010";
 	sel <= comsel;
 	reset <= reset_N;
 	fclka <= fcclk;
@@ -180,8 +195,6 @@ begin
 	rsl_bit(0) <= not leddt(0) when test(2 downto 0) /= "111" else not res2;
 	
 	led_pcm <= '1';
-
---	dd <= dadt;
 	
 	process (test(2 downto 0)) begin
 		case test(2 downto 0) is
