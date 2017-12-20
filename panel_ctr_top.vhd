@@ -13,11 +13,11 @@ entity panel_ctr_top is
 		ph2a : in std_logic;
 		ph2b : in std_logic;
 		ad_status : in std_logic;
-		fs : std_logic;
-		bclk : std_logic;
-		csn : std_logic;
+		fs : out std_logic;
+		bclk : out std_logic;
+		csn : out std_logic;
 		data : std_logic;
-		sclk : std_logic;
+		sclk : out std_logic;
 		ad : in std_logic_vector(11 downto 0);
 		fclka : out std_logic;
 		conv : out std_logic;
@@ -33,7 +33,7 @@ entity panel_ctr_top is
 		seg_f : out std_logic;
 		seg_g : out std_logic;
 		seg_dt : out std_logic;
-		dx : out std_logic;
+		dx : in std_logic;
 		led_pcm : out std_logic;
 		led : out std_logic_vector(7 downto 0);
 		rsl_bit : out std_logic_vector(2 downto 0);
@@ -131,6 +131,22 @@ component conv_disp_data
 		fcdata : out std_logic_vector(8 downto 0));
 end component;
 
+
+----nonlinar_1---
+component nlsw is
+     port( swo :   in   std_logic_vector(1 downto 0);
+           reset : in   std_logic;
+           nlon :  out  std_logic );
+end component;
+
+
+component NLAD is
+     port( ADIN: in  std_logic_vector( 11 downto 0 );
+           NLADOUT: out std_logic_vector( 7 downto 0 ));
+end component;
+----end of nonlinar_1----
+
+
 signal sec : std_logic;
 signal cnt_25 : integer:=33554431;
 --signal cnt_25 : integer:=31;
@@ -144,6 +160,12 @@ signal fscntq : std_logic_vector(6 downto 0);
 signal fccntq : std_logic_vector(3 downto 0);
 signal fsdata,fcdata : std_logic_vector(8 downto 0);
 signal dadt,leddt : std_logic_vector(11 downto 0);
+
+----nonlinar_2---
+signal nlon : std_logic; --nonlinar=1 or linar=0;
+signal NLADOUT : std_logic_vector( 7 downto 0 );
+----end of nonlinar_2----
+
 
 begin
 
@@ -167,6 +189,13 @@ begin
 			res8=>res8,res12=>res12);
 	
 	U8 : conv_disp_data port map(fscntq=>fscntq,fccntq=>fccntq,fsdata=>fsdata,fcdata=>fcdata);
+
+----nonlinar_3---
+	U9 : nlsw port map(swo=>swo ,reset=>reset ,nlon=>nlon );
+
+	U10 : NLAD port map(ADIN=>ad ,NLADOUT=>NLADOUT);
+----end of nonlinar_3---
+
 	
 	sel <= comsel;
 	reset <= reset_N;
@@ -181,20 +210,51 @@ begin
 	seg_c <= segled(5);
 	seg_b <= segled(6);
 	seg_a <= segled(7);
-	
-	led(7) <= not leddt(10);
-	led(6) <= not leddt(9);
-	led(5) <= not leddt(8);
-	led(4) <= not leddt(7);
-	led(3) <= not leddt(6);
-	led(2) <= not leddt(5);
-	led(1) <= not leddt(4);
-	led(0) <= not leddt(3);
+
+
+--	led(7) <= not leddt(10);
+--	led(6) <= not leddt(9);
+--	led(5) <= not leddt(8);
+--	led(4) <= not leddt(7);
+--	led(3) <= not leddt(6);
+--	led(2) <= not leddt(5);
+--	led(1) <= not leddt(4);
+--	led(0) <= not leddt(3);
+
+----nonlinar_4---
+   process (nlon) begin	
+	if(nlon ='0') then
+	 led(7) <= not dadt(10);
+	 led(6) <= not dadt(9);
+	 led(5) <= not dadt(8);
+	 led(4) <= not dadt(7);
+	 led(3) <= not dadt(6);
+	 led(2) <= not dadt(5);
+	 led(1) <= not dadt(4);
+	 led(0) <= not dadt(3);
+	 led_pcm <= '1';
+	else
+	 led(7) <= not NLADOUT(7);
+	 led(6) <= not NLADOUT(6);
+	 led(5) <= not NLADOUT(5);
+	 led(4) <= not NLADOUT(4);
+	 led(3) <= not NLADOUT(3);
+	 led(2) <= not NLADOUT(2);
+	 led(1) <= not NLADOUT(1);
+	 led(0) <= not NLADOUT(0);
+	 led_pcm <= '0';      
+	end if;
+   end process;
+----end of nonlinar_4---
+
+
+
+
 	rsl_bit(2) <= not leddt(2) when test(2 downto 0) /= "111" else not res8;
 	rsl_bit(1) <= not leddt(1) when test(2 downto 0) /= "111" else not res4;
 	rsl_bit(0) <= not leddt(0) when test(2 downto 0) /= "111" else not res2;
 	
-	led_pcm <= '1';
+
 	
 	process (test(2 downto 0)) begin
 		case test(2 downto 0) is
