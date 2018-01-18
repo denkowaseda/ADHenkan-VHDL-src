@@ -222,16 +222,16 @@ begin
 --	led(0) <= not leddt(3);
 
 ----nonlinar_4---
-   process (nlon) begin	
+   process (nlon,leddt(10 downto 3),NLADOUT) begin	
 	if(nlon ='0') then
-	 led(7) <= not dadt(10);
-	 led(6) <= not dadt(9);
-	 led(5) <= not dadt(8);
-	 led(4) <= not dadt(7);
-	 led(3) <= not dadt(6);
-	 led(2) <= not dadt(5);
-	 led(1) <= not dadt(4);
-	 led(0) <= not dadt(3);
+	 led(7) <= not leddt(10);
+	 led(6) <= not leddt(9);
+	 led(5) <= not leddt(8);
+	 led(4) <= not leddt(7);
+	 led(3) <= not leddt(6);
+	 led(2) <= not leddt(5);
+	 led(1) <= not leddt(4);
+	 led(0) <= not leddt(3);
 	 led_pcm <= '1';
 	else
 	 led(7) <= not NLADOUT(7);
