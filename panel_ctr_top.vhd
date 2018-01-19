@@ -89,6 +89,7 @@ end component;
 
 component dtprc
 	port (
+		test : in std_logic_vector(3 downto 0);
 		ad_status : in std_logic;
 		fsclk : in std_logic;
 		res12 : in std_logic;
@@ -120,7 +121,8 @@ component sequencer
 		res2 : out std_logic;
 		res4 : out std_logic;
 		res8 : out std_logic;
-		res12 : out std_logic);
+		res12 : out std_logic;
+		nlon : out std_logic);
 end component;
 
 component conv_disp_data
@@ -132,7 +134,7 @@ component conv_disp_data
 end component;
 
 
-----nonlinar_1---
+----non-linear_1---
 component nlsw is
      port( swo :   in   std_logic_vector(1 downto 0);
            reset : in   std_logic;
@@ -144,12 +146,10 @@ component NLAD is
      port( ADIN: in  std_logic_vector( 11 downto 0 );
            NLADOUT: out std_logic_vector( 7 downto 0 ));
 end component;
-----end of nonlinar_1----
+----end of non-linear_1----
 
 
 signal sec : std_logic;
-signal cnt_25 : integer:=33554431;
---signal cnt_25 : integer:=31;
 signal fsclk,fcclk,scclk,scale,reset : std_logic;
 signal res12,res8,res4,res2 : std_logic;
 signal pha_fs,phb_fs,pha_fc,phb_fc,attup,attdwn : std_logic;
@@ -161,10 +161,10 @@ signal fccntq : std_logic_vector(3 downto 0);
 signal fsdata,fcdata : std_logic_vector(8 downto 0);
 signal dadt,leddt : std_logic_vector(11 downto 0);
 
-----nonlinar_2---
-signal nlon : std_logic; --nonlinar=1 or linar=0;
+----non-linear_2---
+signal nlon : std_logic; --non-linear=1 or linear=0;
 signal NLADOUT : std_logic_vector( 7 downto 0 );
-----end of nonlinar_2----
+----end of non-linear_2----
 
 
 begin
@@ -180,21 +180,19 @@ begin
 			
 	U4 : clkgen port map(reset=>reset,clk=>clk,scale=>scale,scclk=>scclk);
 	
-	U5 : dtprc port map(ad_status =>ad_status,fsclk=>fsclk,res12=>res12,res8=>res8,res4=>res4,
-			res2=>res2,addt=>ad,conv=>conv,da_clock=>da_clock,dadt=>dadt,leddt=>leddt);
+	U5 : dtprc port map(test=>test,ad_status =>ad_status,fsclk=>fsclk,res12=>res12,res8=>res8,res4=>res4,
+			res2=>res2,addt=>ad,conv=>conv,da_clock=>da_clock,dadt=>dd,leddt=>leddt);
 			
 	U6 : chat port map(reset=>reset,clk=>clk,scale=>scale,swi=>swi,swo=>swo);
 	
 	U7 : sequencer port map(reset=>reset,clk=>clk,keyi=>swo,scale=>scale,res2=>res2,res4=>res4,
-			res8=>res8,res12=>res12);
+			res8=>res8,res12=>res12,nlon=>nlon);
 	
 	U8 : conv_disp_data port map(fscntq=>fscntq,fccntq=>fccntq,fsdata=>fsdata,fcdata=>fcdata);
 
-----nonlinar_3---
-	U9 : nlsw port map(swo=>swo ,reset=>reset ,nlon=>nlon );
-
+----non-linear_3---
 	U10 : NLAD port map(ADIN=>ad ,NLADOUT=>NLADOUT);
-----end of nonlinar_3---
+----end of non-linear_3---
 
 	
 	sel <= comsel;
@@ -211,17 +209,7 @@ begin
 	seg_b <= segled(6);
 	seg_a <= segled(7);
 
-
---	led(7) <= not leddt(10);
---	led(6) <= not leddt(9);
---	led(5) <= not leddt(8);
---	led(4) <= not leddt(7);
---	led(3) <= not leddt(6);
---	led(2) <= not leddt(5);
---	led(1) <= not leddt(4);
---	led(0) <= not leddt(3);
-
-----nonlinar_4---
+----non-linear_4---
    process (nlon,leddt(10 downto 3),NLADOUT) begin	
 	if(nlon ='0') then
 	 led(7) <= not leddt(10);
@@ -245,51 +233,12 @@ begin
 	 led_pcm <= '0';      
 	end if;
    end process;
-----end of nonlinar_4---
-
-
-
+----end of non-linear_4---
 
 	rsl_bit(2) <= not leddt(2) when test(2 downto 0) /= "111" else not res8;
 	rsl_bit(1) <= not leddt(1) when test(2 downto 0) /= "111" else not res4;
 	rsl_bit(0) <= not leddt(0) when test(2 downto 0) /= "111" else not res2;
 	
-
-	
-	process (test(2 downto 0)) begin
-		case test(2 downto 0) is
-			when "110" => dd <= "111111111111";
-			when "101" => dd <= "011111111111";
-			when "011" => dd <= "000000000000";
-			when others => dd <= dadt;
-		end case;
-	end process;
-	
---	process(CLK,reset)
---	begin
---		if(reset = '0') then
---			cnt_25 <= 0;
---			sec <= '0';
---		elsif(CLK'event and CLK = '1') then
---			if(cnt_25 = 25000000) then
---			--if(cnt_25 = 25) then
---				sec <= not sec;
---				cnt_25 <= 0;
---			else
---				cnt_25 <= cnt_25 + 1;
---			end if;
---		end if;
---	end process;
-	
---	process (sec) begin
---		if sec = '0' then
-----			led <= "10101010";
---			rsl_bit <= "101";
---		else
-----			led <= "01010101";
---			rsl_bit <= "010";
---		end if;
---	end process;
 end rtl;
 				
 	
