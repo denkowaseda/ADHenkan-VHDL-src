@@ -13,14 +13,15 @@ PORT(
 	res4 : out std_logic;
 	res8 : out std_logic;
 	res12 : out std_logic;
-	nlon : out std_logic);
+	nlon : out std_logic;
+	led_pcm : out std_logic);
 END sequencer;
 
 ARCHITECTURE RTL OF sequencer IS
 
 type state_t is (S0,S1,S2,S3);
 signal state : state_t; 
-signal reg_nlon : std_logic;
+signal reg_nlon,reg_ledpcm : std_logic;
 
 BEGIN
 
@@ -69,12 +70,15 @@ BEGIN
 
 	-- Non-linear
 	nlon <= reg_nlon;
+	led_pcm <= reg_ledpcm;
     process( clk, reset) begin
       if(reset = '0') then
          reg_nlon <= '0';
+			reg_ledpcm <= '1';
       elsif( clk'event and clk='1') then 
 			if keyi(1) = '1' then
 				reg_nlon<= not reg_nlon; 
+				reg_ledpcm <= not reg_ledpcm;
 			else
 				reg_nlon <= reg_nlon;
 			end if;
