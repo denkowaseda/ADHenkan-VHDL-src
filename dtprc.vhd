@@ -17,7 +17,8 @@ entity dtprc is
 		conv : out std_logic;
 		da_clock : out std_logic;
 		dadt : out std_logic_vector(11 downto 0);
-		leddt : out std_logic_vector(11 downto 0));
+		leddt : out std_logic_vector(7 downto 0);
+		rsl_bit : out std_logic_vector(2 downto 0));
 end dtprc;
 
 architecture rtl of dtprc is
@@ -42,15 +43,16 @@ begin
 	selres <= res12 & res2 & res4 & res8;
 
 	process(selres,addt,daout,test) begin
-		if test(3) = '0' then	-- Sin wave 200Hz at 10kHz sampling frequency.
+		if test = "0111" then	-- Sin wave 200Hz at 10kHz sampling frequency.
 			dadt <= daout; led <= daout;
-		elsif test(2 downto 0) = "110" then	-- +10V
-			dadt <= "111111111111";
-		elsif test(2 downto 0) = "101" then	-- 0V
-			dadt <= "011111111111";
-		elsif test(2 downto 0) = "011" then	-- -10V
-			dadt <= "000000000000";
+		elsif test = "1110" then
+			dadt <= "111111111111";	-- Plus fullscale
+		elsif test = "1101" then
+			dadt <= "011111111111";	-- 0V
+		elsif test = "1011" then
+			dadt <= "000000000000";	-- Minus fullscale
 		else
+			dadt <= addt;
 			case selres is
 				when "1000" => led <= addt;
 									dadt <= addt(11 downto 0); -- 12bit
@@ -66,27 +68,24 @@ begin
 	end process;
 	
 	conv <= fsclk;
-	da_clock <= not fsclk;
+	da_clock <= fsclk;
 
 	w1 : waveforms port map(clk=>fsclk, daout=>daout);
 	
 	-- Non-linear
-	process (nlon,led(10 downto 3),NLADOUT) begin	
+	process (nlon,led,NLADOUT) begin	
 		if(nlon ='0') then
-			leddt <= not led;
+			leddt <= not led(10 downto 3);
 		else
-		 leddt(10) <= not NLADOUT(7);
-		 leddt(9) <= not NLADOUT(6);
-		 leddt(8) <= not NLADOUT(5);
-		 leddt(7) <= not NLADOUT(4);
-		 leddt(6) <= not NLADOUT(3);
-		 leddt(5) <= not NLADOUT(2);
-		 leddt(4) <= not NLADOUT(1);
-		 leddt(3) <= not NLADOUT(0);
+			leddt <= not NLADOUT;
 		end if;
    end process;
 	
 	N1 : NLAD port map(ADIN=>addt ,NLADOUT=>NLADOUT);
+
+	rsl_bit(2) <= not led(2) when test /= "1111" else not res8;
+	rsl_bit(1) <= not led(1) when test /= "1111" else not res4;
+	rsl_bit(0) <= not led(0) when test /= "1111" else not res2;
 	
 end rtl;
 				

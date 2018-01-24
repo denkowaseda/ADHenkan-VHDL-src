@@ -13,7 +13,7 @@ end clkgen;
 
 architecture rtl of clkgen is
 
-constant sim : integer := 0;
+constant sim : integer := 1;
 
 signal scclki,scalei : std_logic;
 signal cnt_ms : std_logic_vector(15 downto 0);

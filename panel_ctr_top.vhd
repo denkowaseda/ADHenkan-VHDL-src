@@ -5,39 +5,39 @@ use work.all;
 
 entity panel_ctr_top is 
 	port (
-		reset_N : in std_logic;
-		clk : in std_logic;
-		swi : in std_logic_vector(1 downto 0);
-		ph1a : in std_logic;
-		ph1b : in std_logic;
-		ph2a : in std_logic;
-		ph2b : in std_logic;
-		ad_status : in std_logic;
+		reset : in std_logic;	-- System reset
+		clk : in std_logic;	-- System clock
+		swi : in std_logic_vector(1 downto 0);	-- Tactile switch input
+		ph1a : in std_logic;	-- Phase A input of rotary encoder 1
+		ph1b : in std_logic;	-- Phase B input of rotary encoder 1
+		ph2a : in std_logic;	-- Phase A input of rotary encoder 2
+		ph2b : in std_logic;	-- Phase B input of rotary endoder 2
+		ad_status : in std_logic;	-- Conversion status of AD converter(not used)
 		fs : out std_logic;
 		bclk : out std_logic;
 		csn : out std_logic;
 		data : std_logic;
 		sclk : out std_logic;
-		ad : in std_logic_vector(11 downto 0);
-		fclka : out std_logic;
-		conv : out std_logic;
-		dd : out std_logic_vector(11 downto 0);
-		fclkd : out std_logic;
-		da_clock : out std_logic;
-		sel : out std_logic_vector(5 downto 0);
-		seg_a : out std_logic;
-		seg_b : out std_logic;
-		seg_c : out std_logic;
-		seg_d : out std_logic;
-		seg_e : out std_logic;
-		seg_f : out std_logic;
-		seg_g : out std_logic;
-		seg_dt : out std_logic;
+		ad : in std_logic_vector(11 downto 0);	-- Data from AD converter
+		fclka : out std_logic;	-- Setting clock of LPF cutoff frequency(AD)
+		conv : out std_logic;	-- 1-0 edge initiate a conversion AD 
+		dd : out std_logic_vector(11 downto 0);	-- Data to DA converter
+		fclkd : out std_logic;	-- Setting clock of LPF cutoff frequency(DA)
+		da_clock : out std_logic;	-- Data latch clock of DA converter
+		sel : out std_logic_vector(5 downto 0);	--Digit select signal of 7 Seg. LEDs
+		seg_a : out std_logic;	-- Segment a
+		seg_b : out std_logic;	-- Segment b
+		seg_c : out std_logic;	-- Segment c
+		seg_d : out std_logic;	-- Segment d
+		seg_e : out std_logic;	-- Segment e
+		seg_f : out std_logic;	-- Segment f
+		seg_g : out std_logic;	-- Segment g
+		seg_dt : out std_logic;	-- Dot
 		dx : in std_logic;
-		led_pcm : out std_logic;
-		led : out std_logic_vector(7 downto 0);
-		rsl_bit : out std_logic_vector(2 downto 0);
-		test : in std_logic_vector(3 downto 0));
+		led_pcm : out std_logic;	-- Linear or Not Linear. 0 is Not Linear
+		led : out std_logic_vector(7 downto 0);	-- 8 bit data LEDs
+		rsl_bit : out std_logic_vector(2 downto 0);	-- Resolusion LEDs
+		test : in std_logic_vector(3 downto 0));	-- For test mode
 end panel_ctr_top;
 
 architecture rtl of panel_ctr_top is
@@ -101,7 +101,8 @@ component dtprc
 		conv : out std_logic;
 		da_clock : out std_logic;
 		dadt : out std_logic_vector(11 downto 0);
-		leddt : out std_logic_vector(11 downto 0));
+		leddt : out std_logic_vector(7 downto 0);
+		rsl_bit : out std_logic_vector(2 downto 0));
 end component;
 
 component chat
@@ -136,16 +137,15 @@ component conv_disp_data
 end component;
 
 
-signal fsclk,fcclk,scclk,scale,reset : std_logic;
+signal fsclk,fcclk,scclk,scale : std_logic;
 signal res12,res8,res4,res2 : std_logic;
 signal pha_fs,phb_fs,pha_fc,phb_fc,attup,attdwn : std_logic;
 signal keyi,swo : std_logic_vector(1 downto 0);
-signal comsel : std_logic_vector(5 downto 0);
-signal segled : std_logic_vector(7 downto 0);
+signal segled,leddt : std_logic_vector(7 downto 0);
 signal fscntq : std_logic_vector(6 downto 0);
 signal fccntq : std_logic_vector(3 downto 0);
 signal fsdata,fcdata : std_logic_vector(8 downto 0);
-signal dadt,leddt : std_logic_vector(11 downto 0);
+signal dadt : std_logic_vector(11 downto 0);
 
 ----non-linear_2---
 signal nlon : std_logic; --non-linear=1 or linear=0;
@@ -161,12 +161,13 @@ begin
 			PHB_FC=>ph2b,ATTUP=>attup,ATTDWN=>attdwn,FSCNTQ=>fscntq,FCCNTQ=>fccntq);
 	
 	U3 : dispctr port map(RESET=>reset,CLK=>clk,SCCLK=>scclk,ATTDWN=>attdwn,ATTUP=>attup,
-			FSDATA=>fsdata,FCDATA=>fcdata,COMSEL=>comsel,LED=>segled);
+			FSDATA=>fsdata,FCDATA=>fcdata,COMSEL=>sel,LED=>segled);
 			
 	U4 : clkgen port map(reset=>reset,clk=>clk,scale=>scale,scclk=>scclk);
 	
-	U5 : dtprc port map(test=>test,nlon=>nlon,ad_status =>ad_status,fsclk=>fsclk,res12=>res12,res8=>res8,res4=>res4,
-			res2=>res2,addt=>ad,conv=>conv,da_clock=>da_clock,dadt=>dd,leddt=>leddt);
+	U5 : dtprc port map(test=>test,nlon=>nlon,ad_status =>ad_status,fsclk=>fsclk,res12=>res12,
+			res8=>res8,res4=>res4,res2=>res2,addt=>ad,conv=>conv,da_clock=>da_clock,dadt=>dd,
+			leddt=>led,rsl_bit=>rsl_bit);
 			
 	U6 : chat port map(reset=>reset,clk=>clk,scale=>scale,swi=>swi,swo=>swo);
 	
@@ -176,8 +177,6 @@ begin
 	U8 : conv_disp_data port map(fscntq=>fscntq,fccntq=>fccntq,fsdata=>fsdata,fcdata=>fcdata);
 
 	
-	sel <= comsel;
-	reset <= reset_N;
 	fclka <= fcclk;
 	fclkd <= fcclk;
 	
@@ -191,11 +190,6 @@ begin
 	seg_a <= segled(7);
 	
 
-	led <= leddt(10 downto 3);
-	rsl_bit(2) <= not leddt(2) when test(2 downto 0) /= "111" else not res8;
-	rsl_bit(1) <= not leddt(1) when test(2 downto 0) /= "111" else not res4;
-	rsl_bit(0) <= not leddt(0) when test(2 downto 0) /= "111" else not res2;
-	
 end rtl;
 				
 	
