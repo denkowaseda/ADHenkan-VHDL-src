@@ -14,7 +14,7 @@ end chat;
 
 architecture rtl of chat is
 
-constant sim : integer := 1;
+constant sim : integer := 0;
 
 signal swo1_int : std_logic_vector(1 downto 0);
 signal swo0_int : std_logic_vector(1 downto 0);

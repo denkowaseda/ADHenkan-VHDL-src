@@ -17,7 +17,7 @@ architecture rtl of fsfcgen is
 
 signal fsclki : std_logic;
 signal fsreg,setval_fs : std_logic_vector(23 downto 0);
-signal fcreg,setval_fc : std_logic_vector(19 downto 0);
+signal fcreg,setval_fc : std_logic_vector(23 downto 0);
 
 begin
 
@@ -162,20 +162,20 @@ begin
 	--====================================================================
 	process(fccntq) begin
 		case fccntq is
-			when "0000" => setval_fc <= X"022D1";	--3.4kHz
-			when "0001" => setval_fc <= X"00A3D";	--1kHz
-			when "0010" => setval_fc <= X"0147B";	--2kHz
-			when "0011" => setval_fc <= X"01EB8";	--3kHz
-			when "0100" => setval_fc <= X"028F6";	--4kHz
-			when "0101" => setval_fc <= X"03333";	--5kHz
-			when "0110" => setval_fc <= X"03D71";	--6kHz
-			when "0111" => setval_fc <= X"047AE";	--7kHz
-			when "1000" => setval_fc <= X"051EC";	--8kHz
-			when "1001" => setval_fc <= X"05C29";	--9kHz
-			when "1010" => setval_fc <= X"06666";	--10kHz
-			when "1011" => setval_fc <= X"08F5C";	--14kHz
-			when "1100" => setval_fc <= X"0CCCD";	--20kHz
-			when others => setval_fc <= "XXXXXXXXXXXXXXXXXXXX";
+			when "0000" => setval_fc <= X"022D0E";	--3.4kHz
+			when "0001" => setval_fc <= X"00A3D7";	--1kHz
+			when "0010" => setval_fc <= X"0147AE";	--2kHz
+			when "0011" => setval_fc <= X"01EB85";	--3kHz
+			when "0100" => setval_fc <= X"028F5C";	--4kHz
+			when "0101" => setval_fc <= X"033333";	--5kHz
+			when "0110" => setval_fc <= X"03D70A";	--6kHz
+			when "0111" => setval_fc <= X"047AE1";	--7kHz
+			when "1000" => setval_fc <= X"051EB8";	--8kHz
+			when "1001" => setval_fc <= X"05C28F";	--9kHz
+			when "1010" => setval_fc <= X"066666";	--10kHz
+			when "1011" => setval_fc <= X"08F5C3";	--14kHz
+			when "1100" => setval_fc <= X"0CCCCD";	--20kHz
+			when others => setval_fc <= "XXXXXXXXXXXXXXXXXXXXXXXX";
 		end case;
 	end process;
 
@@ -184,12 +184,12 @@ begin
 	--==========================================
 	process(clk,reset) begin
 		if reset = '0' then
-			fcreg <= "00000000000000000000";
+			fcreg <= "000000000000000000000000";
 		elsif clk'event and clk='1' then
 			fcreg <= fcreg + setval_fc;
 		end if;
 	end process;
-	fcclk <= fcreg(19);
+	fcclk <= fcreg(23);
 
 end rtl;
 				

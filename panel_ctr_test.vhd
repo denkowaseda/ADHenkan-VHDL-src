@@ -71,7 +71,10 @@ BEGIN
 			dx=>dx,
 			led=>led,rsl_bit=>rsl_bit,
 			test=>test);
-	 
+	
+	--====================
+	-- 40MHz system clock
+	--====================
 	PROCESS BEGIN
 		clk <= '0';
 		wait for half_cycle;
@@ -79,30 +82,142 @@ BEGIN
 		wait for half_cycle;
 	end PROCESS;
 	
---	process begin
---		ph1a <= '0';
---		wait for cycle*50;
---		ph1a <= '1';
---		wait for cycle*50;
---	end process;
---	
---	process begin
---		ph1b <= '1';
---		wait for cycle*25;
---		ph1b <= '0';
---		wait for cycle*50;
---		ph1b <= '1';
---		wait for cycle*25;
---	end process;
+	--=======================================================
+	-- Output of rotary encoder 1(Sampling frequency setting)
+	--=======================================================
+	-- Phase B
+	process begin
+		ph1b <= '1';
+		wait for cycle*400;
+		
+		-- Count up
+		for i in 0 to 113 loop
+			ph1b <= '0';
+			wait for cycle*50;
+			ph1b <= '1';
+			wait for cycle*50;
+		end loop;
+		
+		wait for cycle*1000;
+		
+		-- Count down
+		for i in 0 to 150 loop
+			wait for cycle*25;
+			ph1b <= '0';
+			wait for cycle*50;
+			ph1b <= '1';
+			wait for cycle*25;
+		end loop;
+		
+		wait for cycle*400;
+		
+		-- Count up
+		for i in 0 to 98 loop
+			ph1b <= '0';
+			wait for cycle*50;
+			ph1b <= '1';
+			wait for cycle*50;
+		end loop;
+		
+		wait;
+	end process;
 	
-
+	-- Phase A
+	process begin
+		ph1a <= '1';
+		wait for cycle*400;
+		
+		-- Count up
+		for j in 0 to 113 loop
+			wait for cycle*25;
+			ph1a <= '0';
+			wait for cycle*50;
+			ph1a <= '1';
+			wait for cycle*25;
+		end loop;
+		
+		wait for cycle*1000;
+		
+		-- Count down
+		for j in 0 to 150 loop
+			ph1a <= '0';
+			wait for cycle*50;
+			ph1a <= '1';
+			wait for cycle*50;
+		end loop;
+		
+		wait for cycle*400;
+		
+		-- Count up
+		for j in 0 to 98 loop
+			wait for cycle*25;
+			ph1a <= '0';
+			wait for cycle*50;
+			ph1a <= '1';
+			wait for cycle*25;
+		end loop;
+		
+		wait;
+	end process;
+	
+	--=========================================================
+	-- Output of rotary encoder 2(LPF cutoff frequency setting)
+	--=========================================================
+	-- Phase B
+	process begin
+		ph2b <= '1';
+		wait for cycle*400;
+		
+		-- Count up
+		for k in 0 to 12 loop
+			ph2b <= '0';
+			wait for cycle*50;
+			ph2b <= '1';
+			wait for cycle*50;
+		end loop;
+		
+		wait for cycle*400;
+		
+		-- Count down
+		for k in 0 to 12 loop
+			wait for cycle*25;
+			ph2b <= '0';
+			wait for cycle*50;
+			ph2b <= '1';
+			wait for cycle*25;
+		end loop;
+		wait;
+	end process;
+	
+	-- Phase A
+	process begin
+		ph2a <= '1';
+		wait for cycle*400;
+		
+		-- Count up
+		for l in 0 to 12 loop
+			wait for cycle*25;
+			ph2a <= '0';
+			wait for cycle*50;
+			ph2a <= '1';
+			wait for cycle*25;
+		end loop;
+		
+		wait for cycle*400;
+		
+		-- Count down
+		for l in 0 to 12 loop
+			ph2a <= '0';
+			wait for cycle*50;
+			ph2a <= '1';
+			wait for cycle*50;
+		end loop;
+		wait;
+	end process;
+	
 	PROCESS BEGIN
 		reset <= '0';
 		swi <= "11";
-		ph1a <= '1';
-		ph1b <= '1';
-		ph2a <= '1';
-		ph2b <= '1';
 		ad <= X"FFF";
 		test <= "1111";
 		
@@ -121,7 +236,9 @@ BEGIN
 		wait for cycle*350;
 		swi <= "11";
 		
-
+		wait for cycle*25600;
+		test <= "0111";
+		
 		wait;
 	end PROCESS;
 end panel_ctr_top_test_bench;

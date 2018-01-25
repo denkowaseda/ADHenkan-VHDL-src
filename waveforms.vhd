@@ -11,7 +11,7 @@ end waveforms;
 
 architecture rtl of waveforms is
 
-signal romaddr : std_logic_vector(5 downto 0);
+signal romaddr : std_logic_vector(5 downto 0) := "000000";
 signal romdata : std_logic_vector(11 downto 0);
 
 subtype wave is std_logic_vector(11 downto 0);

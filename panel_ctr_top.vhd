@@ -139,8 +139,9 @@ end component;
 
 signal fsclk,fcclk,scclk,scale : std_logic;
 signal res12,res8,res4,res2 : std_logic;
-signal pha_fs,phb_fs,pha_fc,phb_fc,attup,attdwn : std_logic;
-signal keyi,swo : std_logic_vector(1 downto 0);
+--signal pha_fs,phb_fs,pha_fc,phb_fc : std_logic;
+signal attup,attdwn : std_logic;
+signal swo : std_logic_vector(1 downto 0);
 signal segled,leddt : std_logic_vector(7 downto 0);
 signal fscntq : std_logic_vector(6 downto 0);
 signal fccntq : std_logic_vector(3 downto 0);
