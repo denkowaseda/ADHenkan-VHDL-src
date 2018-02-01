@@ -117,7 +117,7 @@ BEGIN
 			wait for cycle*50;
 			ph1b <= '1';
 			wait for cycle*50;
-		end loop;
+		end loop;	-- 10kHz sampling frequency
 		
 		wait;
 	end process;
@@ -155,7 +155,7 @@ BEGIN
 			wait for cycle*50;
 			ph1a <= '1';
 			wait for cycle*25;
-		end loop;
+		end loop;	-- 10kHz sampling frequency
 		
 		wait;
 	end process;
@@ -185,7 +185,7 @@ BEGIN
 			wait for cycle*50;
 			ph2b <= '1';
 			wait for cycle*25;
-		end loop;
+		end loop;	-- LPF 3.4kHz cutoff
 		wait;
 	end process;
 	
@@ -211,7 +211,7 @@ BEGIN
 			wait for cycle*50;
 			ph2a <= '1';
 			wait for cycle*50;
-		end loop;
+		end loop;	-- LPF 3.4kHz cutoff
 		wait;
 	end process;
 	

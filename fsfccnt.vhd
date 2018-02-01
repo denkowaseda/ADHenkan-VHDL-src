@@ -40,10 +40,10 @@ generic(LENGTH : integer);
 		Q : OUT std_logic_vector(LENGTH-1 downto 0));
 end component;
 
-constant init_val_fs : std_logic_vector(6 downto 0) := "0001010";
-constant init_val_fc : std_logic_vector(3 downto 0) := "0000";
+constant init_val_fs : std_logic_vector(6 downto 0) := "0001010";	-- 1kHz sampling freq.
+constant init_val_fc : std_logic_vector(3 downto 0) := "0000";	-- 3.4kHz cutoff freq.
 constant maxcnt_fs : std_logic_vector(6 downto 0) := "1110010";
-constant maxcnt_fc : std_logic_vector(3 downto 0) := "1100";
+constant maxcnt_fc : std_logic_vector(3 downto 0) := "1101";
 constant mincnt_fs : std_logic_vector(6 downto 0) := "0000001";
 constant mincnt_fc : std_logic_vector(3 downto 0) := "0000";
 

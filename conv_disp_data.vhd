@@ -51,6 +51,7 @@ begin
 			when "1010" => fcdata <= "001100100";	--10kHz
 			when "1011" => fcdata <= "010001100";	--14kHz
 			when "1100" => fcdata <= "011001000";	--20kHz
+			when "1101" => fcdata <= "111110100";	--50kHz
 			when others => fcdata <= "XXXXXXXXX";
 		end case;
 	end process;

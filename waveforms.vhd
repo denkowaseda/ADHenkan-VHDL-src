@@ -85,6 +85,7 @@ begin
 			romdata <= sin(conv_integer(romaddr));
 		end if;
 		daout <= romdata;
+--		daout <= not romdata(11) & romdata(10 downto 0);
 	end process;
 	
 end rtl;

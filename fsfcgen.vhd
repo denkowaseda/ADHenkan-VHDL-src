@@ -175,6 +175,7 @@ begin
 			when "1010" => setval_fc <= X"066666";	--10kHz
 			when "1011" => setval_fc <= X"08F5C3";	--14kHz
 			when "1100" => setval_fc <= X"0CCCCD";	--20kHz
+			when "1101" => setval_fc <= X"200000";	--50kHz
 			when others => setval_fc <= "XXXXXXXXXXXXXXXXXXXXXXXX";
 		end case;
 	end process;

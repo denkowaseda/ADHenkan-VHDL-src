@@ -55,19 +55,16 @@ CNTUP <= up; CNTDWN <= down;
 process(RESET_N,CLK) begin
 	if(RESET_N = '0') then
 		s0 <= "00"; s1 <= "00";
---		q_fb <= "0000101000";	-- FS=1kHz
-		q_fb <= INIT_VAL & "00";	-- FS=1kHz		
+		q_fb <= INIT_VAL & "00";		
 	elsif(CLK'event and CLK='1') then
 		s0 <= (A & B); s1 <= s0;
 		if(up = '1') then
---			if(q_fb = "0110111000") then
 			if(q_fb = MAXCNT & "00") then
-			q_fb <= q_fb;
+				q_fb <= q_fb;
 			else
 				q_fb <= q_fb + 1;
 			end if;
 		elsif(down = '1') then
---			if(q_fb = "0000000111") then
 			if(q_fb = MINCNT & "00") then
 				q_fb <= q_fb;
 			else
