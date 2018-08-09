@@ -8,14 +8,15 @@ entity clkgen is
 		reset : in std_logic;
 		clk : in std_logic;
 		scale : out std_logic;
-		scclk : out std_logic);
+		scclk : out std_logic;
+		acmclk : out std_logic);
 end clkgen;
 
 architecture rtl of clkgen is
 
 constant sim : integer := 0;
 
-signal scclki,scalei : std_logic;
+signal scclki,scalei,acmclki : std_logic;
 signal cnt_ms : std_logic_vector(15 downto 0);
 
 begin
@@ -68,8 +69,17 @@ end generate;
 		end if;
 	end process;
 	
+	process(clk,reset) begin
+		if reset = '0' then
+			acmclki <= '0';
+		elsif clk'event and clk='1' then
+			acmclki <= not acmclki;
+		end if;
+	end process;
+	
 	scclk <= scclki;
 	scale <= scalei;
+	acmclk <= acmclki;
 	
 end rtl;
 				

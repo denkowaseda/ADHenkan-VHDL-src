@@ -84,7 +84,8 @@ component clkgen
 		reset : in std_logic;
 		clk : in std_logic;
 		scale : out std_logic;
-		scclk : out std_logic);
+		scclk : out std_logic;
+		acmclk : out std_logic);
 end component;
 
 component dtprc
@@ -137,10 +138,10 @@ component conv_disp_data
 end component;
 
 
-signal fsclk,fcclk,scclk,scale : std_logic;
+signal fsclk,fcclk,scclk,scale,acmclk : std_logic;
 signal res12,res8,res4,res2 : std_logic;
 signal attup,attdwn : std_logic;
-signal swo : std_logic_vector(1 downto 0);
+signal swo,keyi : std_logic_vector(1 downto 0);
 signal segled,leddt : std_logic_vector(7 downto 0);
 signal fscntq : std_logic_vector(6 downto 0);
 signal fccntq : std_logic_vector(3 downto 0);
@@ -154,7 +155,7 @@ signal nlon : std_logic; --non-linear=1 or linear=0;
 
 begin
 
-	U1 : fsfcgen port map(reset=>reset,clk=>clk,fscntq=>fscntq,fccntq=>fccntq,
+	U1 : fsfcgen port map(reset=>reset,clk=>acmclk,fscntq=>fscntq,fccntq=>fccntq,
 			fsclk=>fsclk,fcclk=>fcclk);
 	
 	U2 : fsfccnt port map(CLK=>clk,RESET=>reset,PHA_FS=>ph1a,PHB_FS=>ph1b,PHA_FC=>ph2a,
@@ -163,7 +164,7 @@ begin
 	U3 : dispctr port map(RESET=>reset,CLK=>clk,SCCLK=>scclk,ATTDWN=>attdwn,ATTUP=>attup,
 			FSDATA=>fsdata,FCDATA=>fcdata,COMSEL=>sel,LED=>segled);
 			
-	U4 : clkgen port map(reset=>reset,clk=>clk,scale=>scale,scclk=>scclk);
+	U4 : clkgen port map(reset=>reset,clk=>clk,scale=>scale,scclk=>scclk,acmclk=>acmclk);
 	
 	U5 : dtprc port map(test=>test,nlon=>nlon,ad_status =>ad_status,fsclk=>fsclk,res12=>res12,
 			res8=>res8,res4=>res4,res2=>res2,addt=>ad,conv=>conv,da_clock=>da_clock,dadt=>dd,

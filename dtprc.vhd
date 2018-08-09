@@ -23,6 +23,8 @@ end dtprc;
 
 architecture rtl of dtprc is
 
+constant sim : integer := 0;
+
 component waveforms
 	port (
 		clk : in std_logic;
@@ -70,7 +72,9 @@ begin
 	conv <= fsclk;
 	da_clock <= fsclk;
 
+	SIMULATION : if(sim = 1) generate
 	w1 : waveforms port map(clk=>fsclk, daout=>daout);
+	end generate;
 	
 	-- Non-linear
 	process (nlon,led,NLADOUT) begin	
