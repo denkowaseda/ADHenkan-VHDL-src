@@ -18,11 +18,6 @@ COMPONENT panel_ctr_top
 		ph2a : in std_logic;
 		ph2b : in std_logic;
 		ad_status : in std_logic;
-		fs : out std_logic;
-		bclk : out std_logic;
-		csn : out std_logic;
-		data : std_logic;
-		sclk : out std_logic;
 		ad : in std_logic_vector(11 downto 0);
 		fclka : out std_logic;
 		conv : out std_logic;
@@ -38,7 +33,6 @@ COMPONENT panel_ctr_top
 		seg_f : out std_logic;
 		seg_g : out std_logic;
 		seg_dt : out std_logic;
-		dx : in std_logic;
 		led : out std_logic_vector(7 downto 0);
 		rsl_bit : out std_logic_vector(2 downto 0);
 		test : in std_logic_vector(3 downto 0));
@@ -58,17 +52,15 @@ signal test : std_logic_vector(3 downto 0);
 signal sel : std_logic_vector(5 downto 0);
 signal led : std_logic_vector(7 downto 0);
 signal ad,dd : std_logic_vector(11 downto 0);
-signal fs,bclk,csn,data,sclk,dx : std_logic;
+--signal fs,bclk,csn,data,sclk,dx : std_logic;
 
 BEGIN
 
 	U1: panel_ctr_top port map (reset=>reset,clk=>clk,swi=>swi,ph1a=>ph1a,ph1b=>ph1b,ph2a=>ph2a,
 			ph2b=>ph2b,ad_status=>ad_status,
-			fs=>fs,bclk=>bclk,csn=>csn,data=>data,sclk=>sclk,
 			ad=>ad,fclka=>fclka,conv=>conv,dd=>dd,fclkd=>fclkd,
 			da_clock=>da_clock,sel=>sel,seg_a=>seg_a,seg_b=>seg_b,seg_c=>seg_c,seg_d=>seg_d,
 			seg_e=>seg_e,seg_f=>seg_f,seg_g=>seg_g,seg_dt=>seg_dt,
-			dx=>dx,
 			led=>led,rsl_bit=>rsl_bit,
 			test=>test);
 	

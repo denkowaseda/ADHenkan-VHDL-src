@@ -1,3 +1,4 @@
+
 library IEEE;
 use IEEE.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
@@ -13,11 +14,6 @@ entity panel_ctr_top is
 		ph2a : in std_logic;	-- Phase A input of rotary encoder 2
 		ph2b : in std_logic;	-- Phase B input of rotary endoder 2
 		ad_status : in std_logic;	-- Conversion status of AD converter(not used)
-		fs : out std_logic;
-		bclk : out std_logic;
-		csn : out std_logic;
-		data : std_logic;
-		sclk : out std_logic;
 		ad : in std_logic_vector(11 downto 0);	-- Data from AD converter
 		fclka : out std_logic;	-- Setting clock of LPF cutoff frequency(AD)
 		conv : out std_logic;	-- 1-0 edge initiate a conversion AD 
@@ -33,7 +29,6 @@ entity panel_ctr_top is
 		seg_f : out std_logic;	-- Segment f
 		seg_g : out std_logic;	-- Segment g
 		seg_dt : out std_logic;	-- Dot
-		dx : in std_logic;
 		led_pcm : out std_logic;	-- Linear or Not Linear. 0 is Not Linear
 		led : out std_logic_vector(7 downto 0);	-- 8 bit data LEDs
 		rsl_bit : out std_logic_vector(2 downto 0);	-- Resolusion LEDs
@@ -85,7 +80,7 @@ component clkgen
 		clk : in std_logic;
 		scale : out std_logic;
 		scclk : out std_logic;
-		acmclk : out std_logic);
+		divclk : out std_logic);
 end component;
 
 component dtprc
@@ -138,7 +133,7 @@ component conv_disp_data
 end component;
 
 
-signal fsclk,fcclk,scclk,scale,acmclk : std_logic;
+signal fsclk,fcclk,scclk,scale,divclk : std_logic;
 signal res12,res8,res4,res2 : std_logic;
 signal attup,attdwn : std_logic;
 signal swo,keyi : std_logic_vector(1 downto 0);
@@ -155,24 +150,24 @@ signal nlon : std_logic; --non-linear=1 or linear=0;
 
 begin
 
-	U1 : fsfcgen port map(reset=>reset,clk=>acmclk,fscntq=>fscntq,fccntq=>fccntq,
+	U1 : fsfcgen port map(reset=>reset,clk=>divclk,fscntq=>fscntq,fccntq=>fccntq,
 			fsclk=>fsclk,fcclk=>fcclk);
 	
-	U2 : fsfccnt port map(CLK=>clk,RESET=>reset,PHA_FS=>ph1a,PHB_FS=>ph1b,PHA_FC=>ph2a,
+	U2 : fsfccnt port map(CLK=>divclk,RESET=>reset,PHA_FS=>ph1a,PHB_FS=>ph1b,PHA_FC=>ph2a,
 			PHB_FC=>ph2b,ATTUP=>attup,ATTDWN=>attdwn,FSCNTQ=>fscntq,FCCNTQ=>fccntq);
 	
-	U3 : dispctr port map(RESET=>reset,CLK=>clk,SCCLK=>scclk,ATTDWN=>attdwn,ATTUP=>attup,
+	U3 : dispctr port map(RESET=>reset,CLK=>divclk,SCCLK=>scclk,ATTDWN=>attdwn,ATTUP=>attup,
 			FSDATA=>fsdata,FCDATA=>fcdata,COMSEL=>sel,LED=>segled);
 			
-	U4 : clkgen port map(reset=>reset,clk=>clk,scale=>scale,scclk=>scclk,acmclk=>acmclk);
+	U4 : clkgen port map(reset=>reset,clk=>clk,scale=>scale,scclk=>scclk,divclk=>divclk);
 	
 	U5 : dtprc port map(test=>test,nlon=>nlon,ad_status =>ad_status,fsclk=>fsclk,res12=>res12,
 			res8=>res8,res4=>res4,res2=>res2,addt=>ad,conv=>conv,da_clock=>da_clock,dadt=>dd,
 			leddt=>led,rsl_bit=>rsl_bit);
 			
-	U6 : chat port map(reset=>reset,clk=>clk,scale=>scale,swi=>swi,swo=>swo);
+	U6 : chat port map(reset=>reset,clk=>divclk,scale=>scale,swi=>swi,swo=>swo);
 	
-	U7 : sequencer port map(reset=>reset,clk=>clk,keyi=>swo,scale=>scale,res2=>res2,res4=>res4,
+	U7 : sequencer port map(reset=>reset,clk=>divclk,keyi=>swo,scale=>scale,res2=>res2,res4=>res4,
 			res8=>res8,res12=>res12,nlon=>nlon,led_pcm=>led_pcm);
 	
 	U8 : conv_disp_data port map(fscntq=>fscntq,fccntq=>fccntq,fsdata=>fsdata,fcdata=>fcdata);

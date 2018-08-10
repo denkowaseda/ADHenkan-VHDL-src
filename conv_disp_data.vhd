@@ -18,6 +18,7 @@ begin
 
 	process(fscntq) begin
 		case fscntq is
+			when "0000000" => fsdata <= "000001010";	--1kHz
 			when "1100101" => fsdata <= "001101110";	--11kHz
 			when "1100110" => fsdata <= "001111000";	--12kHz
 			when "1100111" => fsdata <= "010000010";	--13kHz
