@@ -17,6 +17,7 @@ port(
 		PHB_FS : IN std_logic;
 		PHA_FC : IN std_logic;
 		PHB_FC : IN std_logic;
+		JIKKEN1 : IN std_logic;
 		ATTUP : OUT std_logic;
 		ATTDWN : OUT std_logic;
 		FSCNTQ : OUT std_logic_vector(6 downto 0);
@@ -42,7 +43,8 @@ end component;
 
 --constant init_val_fs : std_logic_vector(6 downto 0) := "0001010";	-- 1kHz sampling freq.
 constant init_val_fs : std_logic_vector(6 downto 0) := "0000000";	-- 1kHz sampling freq.
-constant init_val_fc : std_logic_vector(3 downto 0) := "0000";	-- 3.4kHz cutoff freq.
+constant init_val_fc1 : std_logic_vector(3 downto 0) := "0000";	-- 3.4kHz cutoff freq.
+constant init_val_fc2 : std_logic_vector(3 downto 0) := "1100";	-- 20kHz cutoff freq.
 constant maxcnt_fs : std_logic_vector(6 downto 0) := "1110010";
 constant maxcnt_fc : std_logic_vector(3 downto 0) := "1101";
 --constant mincnt_fs : std_logic_vector(6 downto 0) := "0000001";
@@ -55,9 +57,9 @@ begin
 	R1 : rotenc_cnt generic map(LENGTH => 7) port map(CLK=>clk,RESET_N=>reset,A=>PHA_FS,B=>PHB_FS,INIT_VAL=>init_val_fs,
 		MAXCNT=>maxcnt_fs,MINCNT=>mincnt_fs,CNTUP=>CNTUP_FS,CNTDWN=>CNTDWN_FS,Q=>FSCNTQ);
 						
-	R2 : rotenc_cnt generic map(LENGTH => 4) port map(CLK=>clk,RESET_N=>reset,A=>PHA_FC,B=>PHB_FC,INIT_VAL=>init_val_fc,
+	R2 : rotenc_cnt generic map(LENGTH => 4) port map(CLK=>clk,RESET_N=>reset,A=>PHA_FC,B=>PHB_FC,INIT_VAL=>init_val_fc1,
 		MAXCNT=>maxcnt_fc,MINCNT=>mincnt_fc,CNTUP=>CNTUP_FC,CNTDWN=>CNTDWN_FC,Q=>FCCNTQ);
-					
+	
 	ATTUP <= CNTUP_FS or CNTUP_FC;
 	ATTDWN <= CNTDWN_FS or CNTDWN_FC;
 	

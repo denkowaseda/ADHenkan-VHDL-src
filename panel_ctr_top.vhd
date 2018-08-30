@@ -14,6 +14,7 @@ entity panel_ctr_top is
 		ph2a : in std_logic;	-- Phase A input of rotary encoder 2
 		ph2b : in std_logic;	-- Phase B input of rotary endoder 2
 		ad_status : in std_logic;	-- Conversion status of AD converter(not used)
+		jikken1 : in std_logic;
 		ad : in std_logic_vector(11 downto 0);	-- Data from AD converter
 		fclka : out std_logic;	-- Setting clock of LPF cutoff frequency(AD)
 		conv : out std_logic;	-- 1-0 edge initiate a conversion AD 
@@ -41,6 +42,7 @@ component fsfcgen
 	port (
 		reset : in std_logic;
 		clk : in std_logic;
+		jikken1 : in std_logic;
 		fscntq : in std_logic_vector(6 downto 0);
 		fccntq : in std_logic_vector(3 downto 0);
 		fsclk : out std_logic;
@@ -126,6 +128,7 @@ end component;
 
 component conv_disp_data
 	port(
+		jikken1 : in std_logic;
 		fscntq : in std_logic_vector(6 downto 0);
 		fccntq : in std_logic_vector(3 downto 0);
 		fsdata : out std_logic_vector(8 downto 0);
@@ -150,7 +153,7 @@ signal nlon : std_logic; --non-linear=1 or linear=0;
 
 begin
 
-	U1 : fsfcgen port map(reset=>reset,clk=>divclk,fscntq=>fscntq,fccntq=>fccntq,
+	U1 : fsfcgen port map(reset=>reset,clk=>divclk,jikken1=>jikken1,fscntq=>fscntq,fccntq=>fccntq,
 			fsclk=>fsclk,fcclk=>fcclk);
 	
 	U2 : fsfccnt port map(CLK=>divclk,RESET=>reset,PHA_FS=>ph1a,PHB_FS=>ph1b,PHA_FC=>ph2a,
@@ -170,7 +173,7 @@ begin
 	U7 : sequencer port map(reset=>reset,clk=>divclk,keyi=>swo,scale=>scale,res2=>res2,res4=>res4,
 			res8=>res8,res12=>res12,nlon=>nlon,led_pcm=>led_pcm);
 	
-	U8 : conv_disp_data port map(fscntq=>fscntq,fccntq=>fccntq,fsdata=>fsdata,fcdata=>fcdata);
+	U8 : conv_disp_data port map(jikken1=>jikken1,fscntq=>fscntq,fccntq=>fccntq,fsdata=>fsdata,fcdata=>fcdata);
 
 	
 	fclka <= fcclk;

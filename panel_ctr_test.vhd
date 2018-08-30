@@ -18,6 +18,7 @@ COMPONENT panel_ctr_top
 		ph2a : in std_logic;
 		ph2b : in std_logic;
 		ad_status : in std_logic;
+		jikken1 : in std_logic;
 		ad : in std_logic_vector(11 downto 0);
 		fclka : out std_logic;
 		conv : out std_logic;
@@ -43,7 +44,7 @@ constant	half_cycle : Time := 12.5ns;
 
 constant stb	: Time := 2ns;
 
-signal reset,clk,ph1a,ph1b,ph2a,ph2b,ad_status,fclka,fclkd:std_logic;
+signal reset,clk,ph1a,ph1b,ph2a,ph2b,ad_status,jikken1,fclka,fclkd:std_logic;
 signal conv,da_clock,seg_a,seg_b,seg_c,seg_d,seg_e,seg_f : std_logic;
 signal seg_g,seg_dt : std_logic;
 signal swi : std_logic_vector(1 downto 0);
@@ -57,7 +58,7 @@ signal ad,dd : std_logic_vector(11 downto 0);
 BEGIN
 
 	U1: panel_ctr_top port map (reset=>reset,clk=>clk,swi=>swi,ph1a=>ph1a,ph1b=>ph1b,ph2a=>ph2a,
-			ph2b=>ph2b,ad_status=>ad_status,
+			ph2b=>ph2b,ad_status=>ad_status,jikken1=>jikken1,
 			ad=>ad,fclka=>fclka,conv=>conv,dd=>dd,fclkd=>fclkd,
 			da_clock=>da_clock,sel=>sel,seg_a=>seg_a,seg_b=>seg_b,seg_c=>seg_c,seg_d=>seg_d,
 			seg_e=>seg_e,seg_f=>seg_f,seg_g=>seg_g,seg_dt=>seg_dt,

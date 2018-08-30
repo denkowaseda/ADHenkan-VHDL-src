@@ -7,6 +7,7 @@ entity fsfcgen is
 	port (
 		reset : in std_logic;
 		clk : in std_logic;
+		jikken1 : in std_logic;
 		fscntq : in std_logic_vector(6 downto 0);
 		fccntq : in std_logic_vector(3 downto 0);
 		fsclk : out std_logic;
@@ -165,7 +166,12 @@ begin
 	--====================================================================			
 	process(fccntq) begin
 		case fccntq is
-			when "0000" => setval_fc <= X"045A1CAC";	--3.4kHz
+			when "0000" => 
+				if jikken1 = '1' then
+					setval_fc <= X"045A1CAC";	--3.4kHz
+				else
+					setval_fc <= X"1999999A";	--20kHz
+				end if;
 			when "0001" => setval_fc <= X"0147AE14";	--1kHz
 			when "0010" => setval_fc <= X"028F5C29";	--2kHz
 			when "0011" => setval_fc <= X"03D70A3D";	--3kHz

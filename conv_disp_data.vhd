@@ -5,6 +5,7 @@ USE IEEE.std_logic_unsigned.ALL;
 
 ENTITY conv_disp_data IS
 PORT(
+	jikken1 : in std_logic;
 	fscntq : in std_logic_vector(6 downto 0);
 	fccntq : in std_logic_vector(3 downto 0);
 	fsdata : out std_logic_vector(8 downto 0);
@@ -39,7 +40,12 @@ begin
 	
 	process (fccntq) begin
 		case fccntq is
-			when "0000" => fcdata <= "000100010";	--3.4kHz
+			when "0000" =>
+				if jikken1 = '1' then
+					fcdata <= "000100010";	--3.4kHz
+				else
+					fcdata <= "011001000";	--20kHz
+				end if;
 			when "0001" => fcdata <= "000001010";	--1kHz
 			when "0010" => fcdata <= "000010100";	--2kHz
 			when "0011" => fcdata <= "000011110";	--3kHz
