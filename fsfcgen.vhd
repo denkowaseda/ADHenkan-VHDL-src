@@ -164,7 +164,7 @@ begin
 	--====================================================================
 	--Additional value setting table of phase accumulator for cutoff freq.
 	--====================================================================			
-	process(fccntq) begin
+	process(fccntq, jikken1) begin
 		case fccntq is
 			when "0000" => 
 				if jikken1 = '1' then

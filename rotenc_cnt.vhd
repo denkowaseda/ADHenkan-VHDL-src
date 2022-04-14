@@ -52,7 +52,7 @@ end process;
 
 CNTUP <= up; CNTDWN <= down;
 
-process(RESET_N,CLK) begin
+process(RESET_N,CLK, INIT_VAL) begin
 	if(RESET_N = '0') then
 		s0 <= "00"; s1 <= "00";
 		q_fb <= INIT_VAL & "00";		

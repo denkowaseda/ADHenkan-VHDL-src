@@ -14,8 +14,8 @@ entity dtprc is
 		res4 : in std_logic;
 		res2 : in std_logic;
 		addt : in std_logic_vector(11 downto 0);
-		conv : out std_logic;
-		da_clock : out std_logic;
+--		conv : out std_logic;
+--		da_clock : out std_logic;
 		dadt : out std_logic_vector(11 downto 0);
 		leddt : out std_logic_vector(7 downto 0);
 		rsl_bit : out std_logic_vector(2 downto 0));
@@ -43,16 +43,21 @@ begin
 	selres <= res12 & res2 & res4 & res8;
 
 	process(selres,addt,daout,test) begin
-		if test = "0111" then	-- Sin wave 200Hz at 10kHz sampling frequency.
-			dadt <= daout; led <= daout;
+		if test = "0111" then	-- 
+			dadt <= addt; led <= addt;
 		elsif test = "1110" then
 			dadt <= "111111111111";	-- Plus fullscale
+			led <= "111111111111";
 		elsif test = "1101" then
-			dadt <= "011111111111";	-- 0V
+			dadt <= "100000000000";	-- 0V
+			led <= "100000000000";
 		elsif test = "1011" then
 			dadt <= "000000000000";	-- Minus fullscale
+			led <= "000000000000";
+		elsif test = "0110" then
+			dadt <= daout;	-- Sine wave 200Hz at 10kHz sampling frequency.
+			led <= daout;
 		else
-			dadt <= addt;
 			case selres is
 				when "1000" => led <= addt;
 									dadt <= addt(11 downto 0); -- 12bit
@@ -66,9 +71,6 @@ begin
 			end case;
 		end if;
 	end process;
-	
-	conv <= fsclk;
-	da_clock <= fsclk;
 
 	w1 : waveforms port map(clk=>fsclk, daout=>daout);
 	

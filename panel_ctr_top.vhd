@@ -96,8 +96,8 @@ component dtprc
 		res4 : in std_logic;
 		res2 : in std_logic;
 		addt : in std_logic_vector(11 downto 0);
-		conv : out std_logic;
-		da_clock : out std_logic;
+--		conv : out std_logic;
+--		da_clock : out std_logic;
 		dadt : out std_logic_vector(11 downto 0);
 		leddt : out std_logic_vector(7 downto 0);
 		rsl_bit : out std_logic_vector(2 downto 0));
@@ -145,6 +145,9 @@ signal fscntq : std_logic_vector(6 downto 0);
 signal fccntq : std_logic_vector(3 downto 0);
 signal fsdata,fcdata : std_logic_vector(8 downto 0);
 signal dadt : std_logic_vector(11 downto 0);
+signal shift : std_logic_vector(2 downto 0);
+--signal ad_conv,dac_clk : std_logic;
+signal delay_count : std_logic_vector(8 downto 0);
 
 ----non-linear_2---
 signal nlon : std_logic; --non-linear=1 or linear=0;
@@ -165,8 +168,7 @@ begin
 	U4 : clkgen port map(reset=>reset,clk=>clk,scale=>scale,scclk=>scclk,divclk=>divclk);
 	
 	U5 : dtprc port map(test=>test,nlon=>nlon,ad_status =>ad_status,fsclk=>fsclk,res12=>res12,
-			res8=>res8,res4=>res4,res2=>res2,addt=>ad,conv=>conv,da_clock=>da_clock,dadt=>dd,
-			leddt=>led,rsl_bit=>rsl_bit);
+			res8=>res8,res4=>res4,res2=>res2,addt=>ad,dadt=>dd,leddt=>led,rsl_bit=>rsl_bit);
 			
 	U6 : chat port map(reset=>reset,clk=>divclk,scale=>scale,swi=>swi,swo=>swo);
 	
@@ -188,7 +190,41 @@ begin
 	seg_b <= segled(6);
 	seg_a <= segled(7);
 	
-
+	--***********************************************************
+	-- Generate Conversion Tinming Signal of AD Converter(ADS774)
+	--***********************************************************
+	process(reset,clk) begin
+		if reset = '0' then
+			shift <= "000";
+		elsif clk'event and clk='1' then
+			shift(0) <= fsclk;
+			shift(1) <= shift(0);
+			shift(2) <= shift(1);
+		end if;
+	end process;
+	
+	conv <= fsclk or not shift(1);
+	
+	--***********************************************************
+	-- Generate Conversion Tinming Signal of DA Converter(AD9752)
+	--***********************************************************	
+	process(reset,clk) begin
+		if reset = '0' then
+			delay_count <= "000000000";
+			da_clock <= '1';
+		elsif clk'event and clk='1' then
+			if fsclk = '1' then
+				delay_count <= "000000000";
+			elsif delay_count = "101011100" then
+				delay_count <= delay_count;
+				da_clock <= '1';
+			else
+				delay_count <= delay_count + 1;
+				da_clock <= '0';
+			end if;
+		end if;
+	end process;
+	
 end rtl;
 				
 	

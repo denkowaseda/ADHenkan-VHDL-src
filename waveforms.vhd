@@ -80,7 +80,7 @@ begin
 		end if;
 	end process;
 
-	process(clk) begin
+	process(clk, romdata) begin
 		if clk'event and clk='1' then
 			romdata <= sin(conv_integer(romaddr));
 		end if;

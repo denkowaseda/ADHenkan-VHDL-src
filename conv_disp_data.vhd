@@ -38,7 +38,7 @@ begin
 		end case;
 	end process;
 	
-	process (fccntq) begin
+	process (fccntq, jikken1) begin
 		case fccntq is
 			when "0000" =>
 				if jikken1 = '1' then
